@@ -21,7 +21,7 @@ export default defineConfig({
       },
     }),
     nitro({
-      preset: "vercel",
+      preset: "node-server",
     }),
   ],
 });

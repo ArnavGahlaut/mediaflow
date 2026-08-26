@@ -1,4 +1,5 @@
 export type MediaSource = "youtube" | "instagram" | "facebook" | "other";
+
 export type FormatKind = "video" | "audio" | "video+audio";
 
 export type QualityLabel =
@@ -57,6 +58,7 @@ export type MediaErrorCode =
 
 export class MediaError extends Error {
   code: MediaErrorCode;
+
   constructor(code: MediaErrorCode, message: string) {
     super(message);
     this.code = code;
@@ -64,7 +66,10 @@ export class MediaError extends Error {
   }
 }
 
-export const ERROR_COPY: Record<MediaErrorCode, { title: string; body: string }> = {
+export const ERROR_COPY: Record<
+  MediaErrorCode,
+  { title: string; body: string }
+> = {
   invalid_url: {
     title: "That doesn't look like a link",
     body: "Double-check the address you pasted — it should start with https:// and point to a public media page.",
@@ -96,36 +101,87 @@ const QUALITY_MAP: Record<string, QualityLabel> = {
   "1080p": "1080p Full HD",
 };
 
-function mapError(message: string, fallback: MediaErrorCode = "network") {
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(
+  /\/$/,
+  "",
+);
+
+function apiUrl(path: string) {
+  return `${API_BASE_URL}${path}`;
+}
+
+function mapError(
+  message: string,
+  fallback: MediaErrorCode = "network",
+) {
   const lower = message.toLowerCase();
-  if (/invalid url|paste a|unsupported/i.test(lower)) return new MediaError("invalid_url", message);
-  if (/private|restricted|unavailable|public media/i.test(lower)) return new MediaError("unavailable", message);
-  if (/download|format|yt-dlp|ffmpeg|transfer/i.test(lower)) return new MediaError("download_unavailable", message);
+
+  if (/invalid url|paste a|unsupported/i.test(lower)) {
+    return new MediaError("invalid_url", message);
+  }
+
+  if (/private|restricted|unavailable|public media/i.test(lower)) {
+    return new MediaError("unavailable", message);
+  }
+
+  if (/download|format|yt-dlp|ffmpeg|transfer/i.test(lower)) {
+    return new MediaError("download_unavailable", message);
+  }
+
   return new MediaError(fallback, message);
 }
 
-async function jsonFetch<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T> {
+async function jsonFetch<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<T> {
   let response: Response;
+
   try {
     response = await fetch(input, init);
   } catch {
     throw new MediaError("network", ERROR_COPY.network.body);
   }
-  const data = (await response.json().catch(() => ({}))) as T & { error?: string };
-  if (!response.ok) throw mapError(data.error || "The media backend returned an error.");
+
+  const data = (await response.json().catch(() => ({}))) as T & {
+    error?: string;
+  };
+
+  if (!response.ok) {
+    throw mapError(
+      data.error || "The media backend returned an error.",
+    );
+  }
+
   return data;
 }
 
 export function detectSource(url: string): MediaSource | null {
   const value = url.trim().toLowerCase();
-  if (/youtube\.com|youtu\.be/.test(value)) return "youtube";
-  if (value.includes("instagram.com")) return "instagram";
-  if (/facebook\.com|fb\.watch/.test(value)) return "facebook";
+
+  if (/youtube\.com|youtu\.be/.test(value)) {
+    return "youtube";
+  }
+
+  if (value.includes("instagram.com")) {
+    return "instagram";
+  }
+
+  if (/facebook\.com|fb\.watch/.test(value)) {
+    return "facebook";
+  }
+
   return null;
 }
 
 export async function analyzeMedia(url: string): Promise<MediaInfo> {
-  if (!url.trim()) throw new MediaError("invalid_url", ERROR_COPY.invalid_url.body);
+  if (!url.trim()) {
+    throw new MediaError(
+      "invalid_url",
+      ERROR_COPY.invalid_url.body,
+    );
+  }
+
   const data = await jsonFetch<{
     id: string;
     title: string;
@@ -134,23 +190,37 @@ export async function analyzeMedia(url: string): Promise<MediaInfo> {
     source: MediaSource;
     thumbnail: string;
     authorized: boolean;
-    formats: Array<{ kind: FormatKind; quality: string; sizeMb: number; container: string; hasAudio?: boolean }>;
-  }>("/api/media/analyze", {
+    formats: Array<{
+      kind: FormatKind;
+      quality: string;
+      sizeMb: number;
+      container: string;
+      hasAudio?: boolean;
+    }>;
+  }>(apiUrl("/api/media/analyze"), {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ url: url.trim() }),
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      url: url.trim(),
+    }),
   });
 
   return {
     ...data,
     formats: data.formats.map((format) => ({
       ...format,
-      quality: QUALITY_MAP[format.quality] || format.quality as QualityLabel,
+      quality:
+        QUALITY_MAP[format.quality] ||
+        (format.quality as QualityLabel),
     })),
   };
 }
 
-export async function getAvailableFormats(_mediaId: string): Promise<MediaFormat[]> {
+export async function getAvailableFormats(
+  _mediaId: string,
+): Promise<MediaFormat[]> {
   return [];
 }
 
@@ -159,27 +229,42 @@ export async function startDownload(
   format: MediaFormat,
   title?: string,
 ): Promise<DownloadJob> {
-  return jsonFetch<DownloadJob>("/api/media/start", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      url,
-      // UI labels are intentionally friendly (e.g. "1080p Full HD").
-      // The backend expects the canonical yt-dlp height label (e.g. "1080p").
-      quality: format.quality.startsWith("1080p") ? "1080p" : format.quality.replace(" HD", ""),
-      kind: format.kind,
-      title,
-    }),
-  });
+  return jsonFetch<DownloadJob>(
+    apiUrl("/api/media/start"),
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        url,
+        quality: format.quality.startsWith("1080p")
+          ? "1080p"
+          : format.quality.replace(" HD", ""),
+        kind: format.kind,
+        title,
+      }),
+    },
+  );
 }
 
-export async function getDownloadStatus(jobId: string): Promise<DownloadJob> {
-  return jsonFetch<DownloadJob>(`/api/media/status?jobId=${encodeURIComponent(jobId)}`);
+export async function getDownloadStatus(
+  jobId: string,
+): Promise<DownloadJob> {
+  return jsonFetch<DownloadJob>(
+    apiUrl(
+      `/api/media/status?jobId=${encodeURIComponent(jobId)}`,
+    ),
+  );
 }
 
 export function openDownload(jobId: string) {
   const link = document.createElement("a");
-  link.href = `/api/media/file?jobId=${encodeURIComponent(jobId)}`;
+
+  link.href = apiUrl(
+    `/api/media/file?jobId=${encodeURIComponent(jobId)}`,
+  );
+
   link.rel = "noopener";
   document.body.appendChild(link);
   link.click();
@@ -190,9 +275,18 @@ const HISTORY_KEY = "mediaflow-history-v1";
 
 export function recordDownload(item: HistoryItem) {
   if (typeof window === "undefined") return;
+
   const current = readHistory();
-  const next = [item, ...current.filter((x) => x.id !== item.id)].slice(0, 30);
-  window.localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+
+  const next = [
+    item,
+    ...current.filter((x) => x.id !== item.id),
+  ].slice(0, 30);
+
+  window.localStorage.setItem(
+    HISTORY_KEY,
+    JSON.stringify(next),
+  );
 }
 
 export async function getDownloadHistory(): Promise<HistoryItem[]> {
@@ -201,8 +295,12 @@ export async function getDownloadHistory(): Promise<HistoryItem[]> {
 
 function readHistory(): HistoryItem[] {
   if (typeof window === "undefined") return [];
+
   try {
-    const value = JSON.parse(window.localStorage.getItem(HISTORY_KEY) || "[]") as HistoryItem[];
+    const value = JSON.parse(
+      window.localStorage.getItem(HISTORY_KEY) || "[]",
+    ) as HistoryItem[];
+
     return Array.isArray(value) ? value : [];
   } catch {
     return [];
@@ -210,17 +308,30 @@ function readHistory(): HistoryItem[] {
 }
 
 export function formatDuration(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return "—";
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return "—";
+  }
+
   const total = Math.floor(seconds);
   const s = total % 60;
   const m = Math.floor(total / 60);
-  if (m >= 60) return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+
+  if (m >= 60) {
+    return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 export function formatSize(sizeMb: number): string {
-  if (!Number.isFinite(sizeMb) || sizeMb <= 0) return "Calculating…";
-  if (sizeMb >= 1024) return `${(sizeMb / 1024).toFixed(1)} GB`;
+  if (!Number.isFinite(sizeMb) || sizeMb <= 0) {
+    return "Calculating…";
+  }
+
+  if (sizeMb >= 1024) {
+    return `${(sizeMb / 1024).toFixed(1)} GB`;
+  }
+
   return `${sizeMb.toFixed(sizeMb < 10 ? 1 : 0)} MB`;
 }
 
