@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import { nitro } from "nitro/vite";
 
 export default defineConfig({
   plugins: [
@@ -18,6 +19,9 @@ export default defineConfig({
       server: {
         entry: "server",
       },
+    }),
+    nitro({
+      preset: "vercel",
     }),
   ],
 });
