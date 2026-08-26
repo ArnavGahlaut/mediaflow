@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-
+import { corsJson, corsOptions } from "@/lib/cors.server";
 export const Route = createFileRoute("/api/media/history")({
   server: {
     handlers: {
-      GET: async () => Response.json([]),
+      OPTIONS: corsOptions,
+      GET: async () => corsJson([]),
     },
   },
 });

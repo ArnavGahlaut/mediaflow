@@ -1,18 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createReadStream } from "node:fs";
 import { Readable } from "node:stream";
-
+import { CORS_HEADERS, corsJson, corsOptions } from "@/lib/cors.server";
 export const Route = createFileRoute("/api/media/file")({
   server: {
     handlers: {
+      OPTIONS: corsOptions,
       GET: async ({ request }) => {
         const jobId = new URL(request.url).searchParams.get("jobId") || "";
         const { takeCompletedJob, cleanupJob } = await import("@/lib/media-server/jobs");
         const job = takeCompletedJob(jobId);
         if (!job || job.status !== "completed" || !job.filePath) {
-          return Response.json({ error: "The download is not ready." }, { status: 404 });
+          return corsJson({ error: "The download is not ready." }, { status: 404 });
         }
-
         const nodeStream = createReadStream(job.filePath);
         nodeStream.on("close", () => void cleanupJob(jobId));
         const body = Readable.toWeb(nodeStream) as unknown as ReadableStream<Uint8Array>;
@@ -21,6 +21,7 @@ export const Route = createFileRoute("/api/media/file")({
         headers.set("Content-Length", String(job.sizeBytes || 0));
         headers.set("Content-Disposition", `attachment; filename*=UTF-8''${encodeURIComponent(job.filename || "media")}`);
         headers.set("Cache-Control", "no-store");
+        for (const [k, v] of Object.entries(CORS_HEADERS)) headers.set(k, v);
         return new Response(body, { status: 200, headers });
       },
     },
