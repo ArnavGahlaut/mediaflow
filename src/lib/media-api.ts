@@ -72,23 +72,28 @@ export const ERROR_COPY: Record<
 > = {
   invalid_url: {
     title: "That doesn't look like a link",
-    body: "Double-check the address you pasted — it should start with https:// and point to a public media page.",
+    body:
+      "Double-check the address you pasted — it should start with https:// and point to a public media page.",
   },
   unsupported_source: {
     title: "We don't support this source yet",
-    body: "We couldn't process this URL. Check that it's a supported public URL and that you have permission to download the content.",
+    body:
+      "We couldn't process this URL. Check that it's a supported public URL and that you have permission to download the content.",
   },
   unavailable: {
     title: "This media isn't available",
-    body: "The post may have been removed, private, or unavailable on this network. Only public media is supported.",
+    body:
+      "The post may have been removed, private, or unavailable on this network. Only public media is supported.",
   },
   download_unavailable: {
     title: "Download isn't available",
-    body: "The source did not provide a usable downloadable format. Try another available quality or another public video.",
+    body:
+      "The source did not provide a usable downloadable format. Try another available quality or another public video.",
   },
   network: {
     title: "Network hiccup",
-    body: "We couldn't reach the media backend. Check your connection and make sure the local server is running.",
+    body:
+      "We couldn't reach the media backend. Check your connection and make sure the local server is running.",
   },
 };
 
@@ -101,10 +106,9 @@ const QUALITY_MAP: Record<string, QualityLabel> = {
   "1080p": "1080p Full HD",
 };
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(
-  /\/$/,
-  "",
-);
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || ""
+).replace(/\/$/, "");
 
 function apiUrl(path: string) {
   return `${API_BASE_URL}${path}`;
@@ -140,7 +144,10 @@ async function jsonFetch<T>(
   try {
     response = await fetch(input, init);
   } catch {
-    throw new MediaError("network", ERROR_COPY.network.body);
+    throw new MediaError(
+      "network",
+      ERROR_COPY.network.body,
+    );
   }
 
   const data = (await response.json().catch(() => ({}))) as T & {
@@ -174,7 +181,9 @@ export function detectSource(url: string): MediaSource | null {
   return null;
 }
 
-export async function analyzeMedia(url: string): Promise<MediaInfo> {
+export async function analyzeMedia(
+  url: string,
+): Promise<MediaInfo> {
   if (!url.trim()) {
     throw new MediaError(
       "invalid_url",
@@ -289,7 +298,9 @@ export function recordDownload(item: HistoryItem) {
   );
 }
 
-export async function getDownloadHistory(): Promise<HistoryItem[]> {
+export async function getDownloadHistory(): Promise<
+  HistoryItem[]
+> {
   return readHistory();
 }
 
@@ -317,7 +328,10 @@ export function formatDuration(seconds: number): string {
   const m = Math.floor(total / 60);
 
   if (m >= 60) {
-    return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    return `${Math.floor(m / 60)}:${String(m % 60).padStart(
+      2,
+      "0",
+    )}:${String(s).padStart(2, "0")}`;
   }
 
   return `${m}:${String(s).padStart(2, "0")}`;
