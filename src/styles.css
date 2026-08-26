@@ -1,0 +1,198 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * MediaFlow design system — dark charcoal surface, YouTube red primary,
+ * Instagram gradient accent. All colors are oklch semantic tokens.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-yt: var(--yt);
+  --color-ig-pink: var(--ig-pink);
+  --color-ig-orange: var(--ig-orange);
+  --color-ig-violet: var(--ig-violet);
+  --color-success: var(--success);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 1.15rem;
+
+  --background: oklch(0.16 0.008 285);
+  --foreground: oklch(0.97 0.004 285);
+
+  --card: oklch(0.215 0.011 285);
+  --card-foreground: oklch(0.97 0.004 285);
+  --popover: oklch(0.21 0.011 285);
+  --popover-foreground: oklch(0.97 0.004 285);
+
+  /* YouTube red */
+  --primary: oklch(0.585 0.235 27.2);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --secondary: oklch(0.26 0.012 285);
+  --secondary-foreground: oklch(0.95 0.004 285);
+  --muted: oklch(0.255 0.01 285);
+  --muted-foreground: oklch(0.7 0.014 285);
+  --accent: oklch(0.29 0.014 285);
+  --accent-foreground: oklch(0.97 0.004 285);
+
+  --destructive: oklch(0.6 0.22 22);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.72 0.16 155);
+
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.585 0.235 27.2);
+
+  /* Instagram accent stops */
+  --ig-violet: oklch(0.55 0.22 300);
+  --ig-pink: oklch(0.63 0.25 5);
+  --ig-orange: oklch(0.76 0.17 62);
+
+  --gradient-brand: linear-gradient(
+    115deg,
+    var(--ig-orange) 0%,
+    var(--ig-pink) 38%,
+    var(--primary) 68%,
+    var(--ig-violet) 100%
+  );
+  --gradient-yt: linear-gradient(135deg, var(--primary), var(--ig-pink));
+  --gradient-glass: linear-gradient(
+    160deg,
+    oklch(1 0 0 / 8%) 0%,
+    oklch(1 0 0 / 2%) 45%,
+    oklch(1 0 0 / 0%) 100%
+  );
+  --glow-brand: 0 24px 70px -24px oklch(0.585 0.235 27.2 / 55%);
+  --glow-ig: 0 24px 70px -26px oklch(0.63 0.25 5 / 50%);
+  --shadow-card: 0 20px 50px -30px oklch(0 0 0 / 80%);
+
+  --chart-1: oklch(0.585 0.235 27.2);
+  --chart-2: oklch(0.63 0.25 5);
+  --chart-3: oklch(0.76 0.17 62);
+  --chart-4: oklch(0.55 0.22 300);
+  --chart-5: oklch(0.72 0.16 155);
+
+  --sidebar: oklch(0.19 0.01 285);
+  --sidebar-foreground: oklch(0.97 0.004 285);
+  --sidebar-primary: oklch(0.585 0.235 27.2);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.26 0.012 285);
+  --sidebar-accent-foreground: oklch(0.97 0.004 285);
+  --sidebar-border: oklch(1 0 0 / 9%);
+  --sidebar-ring: oklch(0.585 0.235 27.2);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: var(--ig-pink);
+    color: oklch(0.99 0 0);
+  }
+}
+
+@utility app-bg {
+  position: relative;
+  background:
+    radial-gradient(60rem 32rem at 12% -8%, oklch(0.585 0.235 27.2 / 22%), transparent 70%),
+    radial-gradient(52rem 30rem at 92% 4%, oklch(0.55 0.22 300 / 20%), transparent 70%),
+    radial-gradient(46rem 28rem at 68% 42%, oklch(0.76 0.17 62 / 9%), transparent 70%),
+    var(--background);
+}
+
+@utility glass {
+  background-color: oklch(1 0 0 / 4.5%);
+  background-image: var(--gradient-glass);
+  border: 1px solid oklch(1 0 0 / 9%);
+  backdrop-filter: blur(22px) saturate(130%);
+  box-shadow: var(--shadow-card);
+}
+
+@utility glass-hover {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+  &:hover {
+    transform: translateY(-3px);
+    border-color: oklch(1 0 0 / 18%);
+    box-shadow: var(--glow-ig);
+  }
+}
+
+@utility text-brand-gradient {
+  background: var(--gradient-brand);
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-brand-gradient {
+  background: var(--gradient-brand);
+}
+
+@utility ring-brand-glow {
+  box-shadow: var(--glow-brand);
+}
