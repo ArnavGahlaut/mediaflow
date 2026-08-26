@@ -14,14 +14,12 @@ export default defineConfig({
       target: "react",
       autoCodeSplitting: true,
     }),
-    react(),
     tanstackStart({
       server: {
         entry: "server",
       },
     }),
-    nitro({
-      preset: process.env.VERCEL ? "vercel" : "node-server",
-    }),
+    nitro(),
+    react(),
   ],
 });
