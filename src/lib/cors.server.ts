@@ -1,4 +1,4 @@
-const ALLOWED_ORIGIN = process.env.FRONTEND_ORIGIN || "https://mediaflow-eight.vercel.app"\;
+const ALLOWED_ORIGIN = process.env.FRONTEND_ORIGIN || "https://mediaflow-eight.vercel.app";
 
 export const CORS_HEADERS = {
   "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
