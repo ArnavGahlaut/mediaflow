@@ -58,7 +58,7 @@ export async function probeWithYtDlp(url: string, platform: Platform): Promise<Y
   // YouTube is currently rolling out PO-token enforcement for some clients.
   // If the default client exposes no usable formats, retry with clients that
   // yt-dlp currently documents as not requiring a PO token for GVS.
-  if (result.code !== 0 && /403|forbidden|po token|proof of origin/i.test(result.stderr || result.stdout)) {
+  if (result.code !== 0 && /403|forbidden|po token|proof of origin|sign in|not a bot|429|too many requests/i.test(result.stderr || result.stdout)) {
     result = await runYtDlp([...commonArgs, ...youtubeFallbackArgs, "--skip-download", "-J", url], 120_000);
   }
   const { stdout, stderr, code } = result;
@@ -126,7 +126,7 @@ export async function downloadWithYtDlp(opts: { url: string; quality: QualityLab
   args.push(opts.url);
 
   let result = await runYtDlp(args, 60 * 60 * 1000);
-  if (result.code !== 0 && /403|forbidden|po token|proof of origin/i.test(result.stderr || result.stdout)) {
+  if (result.code !== 0 && /403|forbidden|po token|proof of origin|sign in|not a bot|429|too many requests/i.test(result.stderr || result.stdout)) {
     // Retry the same selection with YouTube clients that currently avoid the
     // affected GVS PO-token requirement where possible.
     result = await runYtDlp([...args.slice(0, commonArgs.length), ...youtubeFallbackArgs, ...args.slice(commonArgs.length)], 60 * 60 * 1000);
