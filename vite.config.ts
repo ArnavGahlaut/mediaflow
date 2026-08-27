@@ -20,8 +20,8 @@ export default defineConfig({
       },
     }),
     nitro({
-      preset: "vercel",
-    }),
+	    preset: process.env.NITRO_PRESET || "vercel",
+	  }),
     react(),
   ],
 });

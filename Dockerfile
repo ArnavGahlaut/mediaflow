@@ -19,10 +19,11 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
-
 ENV NODE_ENV=production
+ENV NITRO_PRESET=node-server
 ENV YTDLP_BIN=python3
 ENV MEDIAFLOW_JS_RUNTIME=node
+
+RUN npm run build
 
 CMD ["node", ".output/server/index.mjs"]
