@@ -9,7 +9,7 @@ RUN apt-get update && \
       git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install --break-system-packages -U yt-dlp
+RUN python3 -m pip install --break-system-packages -U "yt-dlp[default]"
 
 WORKDIR /app
 
