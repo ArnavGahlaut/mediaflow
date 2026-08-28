@@ -50,7 +50,7 @@ const commonArgs = [
 
 const youtubeFallbackArgs = [
   "--extractor-args",
-  "youtube:player_client=android_vr,web_embedded",
+  "youtube:player_client=mweb",
 ];
 
 export async function probeWithYtDlp(url: string, platform: Platform): Promise<YtDlpInfo> {
