@@ -48,6 +48,10 @@ const commonArgs = [
   "--no-playlist",
 ];
 
+const youtubeFallbackArgs = [
+  "--extractor-args",
+  "youtube:player_client=web_embedded",
+];
 function run(args: string[], timeoutMs: number, onLine?: (line: string) => void) {
   return new Promise<{ stdout: string; stderr: string; code: number }>((resolve, reject) => {
     const child = spawn(command, command === "python3" ? ["-m", "yt_dlp", ...args] : args, {
@@ -250,9 +254,28 @@ async function buildFormats(raw: YtDlpFormat[]): Promise<ServerFormat[]> {
 }
 
 export async function probeUrl(url: string): Promise<MediaInfo> {
-  const result = await run(
+  let result = await run(
+  [
+    ...commonArgs,
+    "--skip-download",
+    "--socket-timeout",
+    "30",
+    "-j",
+    url,
+  ],
+  90_000,
+);
+
+if (
+  result.code !== 0 &&
+  /sign in|not a bot|bot detection|403|forbidden|po token|proof of origin/i.test(
+    result.stderr || result.stdout
+  )
+) {
+  result = await run(
     [
       ...commonArgs,
+      ...youtubeFallbackArgs,
       "--skip-download",
       "--socket-timeout",
       "30",
@@ -261,6 +284,7 @@ export async function probeUrl(url: string): Promise<MediaInfo> {
     ],
     90_000,
   );
+}
   if (result.code !== 0) throw friendlyError(result.stderr || result.stdout);
 
   let info: YtDlpInfo;
@@ -353,10 +377,30 @@ export async function downloadToTemp(opts: {
   if (opts.kind === "video+audio") args.push("--merge-output-format", "mp4");
   args.push(opts.url);
 
-  const result = await run(args, 3_600_000, (line) => {
+  let result = await run(args, 3_600_000, (line) => {
     const match = line.match(/download:\s*([0-9.]+)%/);
     if (match) opts.onProgress?.(Math.max(0, Math.min(99, Number(match[1]))));
   });
+
+  if (
+    result.code !== 0 &&
+    /sign in|not a bot|bot detection|403|forbidden|po token|proof of origin/i.test(
+      result.stderr || result.stdout
+    )
+  ) {
+    result = await run(
+      [
+        ...commonArgs,
+        ...youtubeFallbackArgs,
+        ...args.slice(commonArgs.length),
+      ],
+      3_600_000,
+      (line) => {
+        const match = line.match(/download:\s*([0-9.]+)%/);
+        if (match) opts.onProgress?.(Math.max(0, Math.min(99, Number(match[1]))));
+      }
+    );
+  }
 
   if (result.code !== 0) {
     await rm(dir, { recursive: true, force: true });
