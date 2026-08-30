@@ -268,19 +268,15 @@ export async function getDownloadStatus(
 }
 
 export function openDownload(jobId: string) {
-  const link = document.createElement("a");
-
-  link.href = apiUrl(
+  const url = apiUrl(
     `/api/media/file?jobId=${encodeURIComponent(jobId)}`,
   );
 
-  link.rel = "noopener";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  window.location.href = url;
 }
 
 const HISTORY_KEY = "mediaflow-history-v1";
+
 
 export function recordDownload(item: HistoryItem) {
   if (typeof window === "undefined") return;
