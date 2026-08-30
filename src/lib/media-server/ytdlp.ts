@@ -39,7 +39,12 @@ const command = process.env["YTDLP_BIN"] || "python3";
 // challenge scripts for full format availability. The Python/PyPI install may
 // not bundle EJS, so allow yt-dlp to fetch the pinned EJS package from GitHub.
 // This is only a helper for public/authorized media; it does not bypass access controls.
-const youtubeRuntimeArgs = ["--js-runtimes", process.env["MEDIAFLOW_JS_RUNTIME"] || "node", "--remote-components", "ejs:github"];
+const youtubeRuntimeArgs = [
+  "--js-runtimes",
+  process.env["MEDIAFLOW_JS_RUNTIME"] || "node",
+  "--remote-components",
+  "ejs:github",
+];
 
 const commonArgs = [
   "--force-ipv4",
@@ -47,7 +52,6 @@ const commonArgs = [
   "--no-warnings",
   "--no-playlist",
 ];
-
 const youtubeFallbackArgs = [
   "--extractor-args",
   "youtube:player_client=web_embedded",
